@@ -1,7 +1,9 @@
 SampleApp::Application.routes.draw do
-  get "static_pages/home"
-  get "static_pages/help"
-  get "static_pages/about"
-  get "static_pages/contact"
+  root "static_pages#home"
+
+  get "/signup" => "users#new"
+  get "/help" => "static_pages#help"
+  get "/about" => "static_pages#about"
+  get "/contact" => "static_pages#contact"
 
 end
