@@ -4,7 +4,9 @@ describe User do
 
   def user_attributes
     { name: "Mickey",
-      email: "mickey@example.com"
+      email: "mickey@example.com",
+      password: "password",
+      password_confirmation: "password"
     }
   end
 
@@ -53,8 +55,41 @@ describe User do
     expect(user1).to_not be_valid
   end
 
-  it "a user should be not be valid without email" do
+  it "should be not be valid without email" do
     user1 = User.new(user_attributes.merge(email: ""))
+    expect(user1).to_not be_valid
+  end
+
+  it "should have a password digest" do
+    expect(@user).to respond_to(:password_digest)
+    expect(@user).to respond_to(:password)
+    expect(@user).to respond_to(:password_confirmation)
+  end
+
+  it "should not be valid with a mismatched password confirmation" do
+    user1 = User.new(user_attributes.merge(password_confirmation: "no way"))
+    expect(user1).to_not be_valid
+  end
+
+  it "should respond to authenticate" do
+    expect(@user).to respond_to(:authenticate)
+  end
+
+  it "should be found with a valid password" do
+    @user.save
+    user = User.find_by(email: @user.email)
+    expect(user).to eq(user.authenticate(@user.password))
+  end
+
+  it "should not be found with an invalid password" do
+    @user.save
+    user = User.find_by(email: @user.email)
+    expect(user).to_not eq(user.authenticate("invalid"))
+  end
+
+  it "should have a password of at least 6 characters" do
+    user1 = User.new(user_attributes.merge(password: "y"*5,
+                                           password_confirmation: "y"*5))
     expect(user1).to_not be_valid
   end
 
