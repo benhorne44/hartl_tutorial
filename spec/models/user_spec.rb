@@ -2,15 +2,7 @@ require 'spec_helper'
 
 describe User do
 
-  def user_attributes
-    { name: "Mickey",
-      email: "mickey@example.com",
-      password: "password",
-      password_confirmation: "password"
-    }
-  end
-
-  before {@user = User.new(user_attributes)}
+  before {@user = FactoryGirl.build(:user)}
 
   it "should have a name attribute" do
     expect(@user).to respond_to(:name)
@@ -25,38 +17,43 @@ describe User do
   end
 
   it "a user should be not be valid without name" do
-    user1 = User.new(user_attributes.merge(name: ""))
+    user1 = FactoryGirl.build(:user, name: "")
     expect(user1).to_not be_valid
   end
 
   it "a user is invalid with an invalid email" do
     addresses = ['user@foo,com', 'user_at_foo.org', 'example.user@foo.',
-                 'foo@bar_baz.com', 'foo@bar+baz.com']
+                 'foo@bar_baz.com', 'foo@bar+baz.com', 'foo@bar..com']
     addresses.each do |invalid_address|
-      user1 = User.new(user_attributes.merge(email: invalid_address))
+      user1 = FactoryGirl.build(:user, email: invalid_address)
       expect(user1).to_not be_valid
     end
   end
 
   it "an email must be unique" do
     @user.save
-    user1 = User.new(user_attributes.merge(email: @user.email))
+    user1 = FactoryGirl.build(:user, email: @user.email)
     expect(user1).to_not be_valid
   end
 
   it "an email is case insensitive" do
     @user.save
-    user1 = User.new(user_attributes.merge(email: @user.email.upcase))
+    user1 = FactoryGirl.build(:user, email: @user.email.upcase)
     expect(user1).to_not be_valid
   end
 
+  it "an email is stored as lower-case" do
+    user1 = FactoryGirl.create(:user, email: 'WowZa@example.com')
+    expect(user1.email).to eq('wowza@example.com')
+  end
+
   it "a name with more than 50 characters is not valid" do
-    user1 = User.new(user_attributes.merge(name: "a"*51))
+    user1 = FactoryGirl.build(:user, name: "a"*51)
     expect(user1).to_not be_valid
   end
 
   it "should be not be valid without email" do
-    user1 = User.new(user_attributes.merge(email: ""))
+    user1 = FactoryGirl.build(:user, email: "")
     expect(user1).to_not be_valid
   end
 
@@ -67,7 +64,7 @@ describe User do
   end
 
   it "should not be valid with a mismatched password confirmation" do
-    user1 = User.new(user_attributes.merge(password_confirmation: "no way"))
+    user1 = FactoryGirl.build(:user, password_confirmation: "no way")
     expect(user1).to_not be_valid
   end
 
@@ -88,9 +85,11 @@ describe User do
   end
 
   it "should have a password of at least 6 characters" do
-    user1 = User.new(user_attributes.merge(password: "y"*5,
-                                           password_confirmation: "y"*5))
+    user1 = FactoryGirl.build(:user, password: "y"*5,
+                                     password_confirmation: "y"*5)
     expect(user1).to_not be_valid
   end
+
+
 
 end
