@@ -90,6 +90,13 @@ describe User do
     expect(user1).to_not be_valid
   end
 
+  it "should have a remember_token token" do
+    expect(@user).to respond_to(:remember_token)
+    expect(@user.remember_token).to be_blank
+    @user.save
+    expect(@user.remember_token).to_not be_blank
+  end
+
 
 
 end
